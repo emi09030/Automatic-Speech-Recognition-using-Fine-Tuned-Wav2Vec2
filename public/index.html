@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <title>Hệ thống ASR - Nhóm 10</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .box { background: white; padding: 30px; border-radius: 10px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); text-align: center; width: 400px; }
+        input { margin: 20px 0; }
+        button { background: #007bff; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; width: 100%; font-weight: bold;}
+        button:hover { background: #0056b3; }
+        button:disabled { background: #aaa; }
+        #result { margin-top: 20px; padding: 15px; background: #e9ecef; border-radius: 5px; min-height: 50px; font-weight: bold; color: #333; }
+        .loading { display: none; color: gray; margin-top: 10px; font-style: italic;}
+    </style>
+</head>
+<body>
+    <div class="box">
+        <h2>🎙️ ASR Web Demo</h2>
+        <p>Phiên bản Baseline v0 (Chạy Localhost)</p>
+        <input type="file" id="audio" accept="audio/*">
+        <button id="btn" onclick="transcribe()">Dịch sang văn bản</button>
+        <div id="loader" class="loading">AI đang giải mã âm thanh...</div>
+        <div id="result">Kết quả sẽ hiển thị ở đây</div>
+    </div>
+
+    <script>
+        async function transcribe() {
+            const file = document.getElementById('audio').files[0];
+            if (!file) return alert("Vui lòng chọn file âm thanh!");
+            
+            const btn = document.getElementById('btn');
+            const loader = document.getElementById('loader');
+            const result = document.getElementById('result');
+            
+            const fd = new FormData(); fd.append("audio", file);
+            
+            btn.disabled = true; loader.style.display = "block"; result.innerText = "";
+            try {
+                const res = await fetch('/api/transcribe', { method: 'POST', body: fd });
+                const data = await res.json();
+                result.innerText = res.ok ? data.transcript : data.error;
+            } catch (e) {
+                result.innerText = "Lỗi kết nối Server.";
+            } finally {
+                btn.disabled = false; loader.style.display = "none";
+            }
+        }
+    </script>
+</body>
+</html>
